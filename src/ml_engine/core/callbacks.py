@@ -3,7 +3,9 @@ from typing import Any, Protocol, runtime_checkable
 
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import MLFlowLogger
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 
+from ml_engine.configs.base import ExperimentConfig
 
 @dataclass
 class DatasetMetadata:
@@ -58,3 +60,36 @@ class DatasetLoggingCallback(pl.Callback):
                 dictionary=metadata.details,
                 artifact_file="dataset_metadata.json",
             )
+
+
+###########################
+# Callback builders for the Trainer. These are separate from the EngineModule because they are not part of the model's forward/backward pass. 
+###########################
+
+def build_callbacks(
+    config: ExperimentConfig,
+    extra_callbacks: list[pl.Callback] | None = None,
+) -> list[pl.Callback]:
+    """Assembles the standard ml-engine callbacks plus any client-provided ones."""
+    callbacks: list[pl.Callback] = [
+        ModelCheckpoint(
+            dirpath=f"checkpoints/{config.project_name}",
+            filename="best_model-{epoch:02d}-{val/loss:.4f}",
+            monitor="val/loss",
+            mode="min",
+            save_top_k=1,
+            save_last=True,
+        ),
+        EarlyStopping(
+            monitor="val/loss",
+            min_delta=0.0,
+            patience=10,
+            mode="min",
+        ),
+        DatasetLoggingCallback(),
+    ]
+
+    if extra_callbacks:
+        callbacks.extend(extra_callbacks)
+
+    return callbacks
