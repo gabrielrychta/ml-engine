@@ -1,11 +1,10 @@
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from torch import nn
 
 from ml_engine.configs.base import ExperimentConfig
 from ml_engine.core.callbacks import build_callbacks
-from ml_engine.core.task import BaseTask
 from ml_engine.core.module import EngineModule
+from ml_engine.core.task import BaseTask
 
 
 def run_training(
@@ -13,6 +12,7 @@ def run_training(
     model: nn.Module,
     task: BaseTask,
     datamodule: pl.LightningDataModule,
+    extra_callbacks: list[pl.Callback] | None = None,
 ) -> EngineModule:
     """
     Core entry point for training a model using ml-engine.
@@ -39,6 +39,7 @@ def run_training(
     trainer_config = config.trainer
     trainer = pl.Trainer(
         max_epochs=trainer_config.max_epochs,
+        log_every_n_steps=trainer_config.log_every_n_steps,
         accelerator=trainer_config.accelerator,
         devices=trainer_config.devices,
         strategy=trainer_config.strategy,
@@ -49,5 +50,8 @@ def run_training(
 
     # 5. Execute Training
     trainer.fit(model=engine, datamodule=datamodule)
+
+    # 6. Execute Testing (optional, but useful for final evaluation)
+    trainer.test(model=engine, datamodule=datamodule)
     
     return engine
