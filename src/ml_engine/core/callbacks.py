@@ -2,10 +2,11 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
 import pytorch_lightning as pl
-from pytorch_lightning.loggers import MLFlowLogger
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.loggers import MLFlowLogger
 
 from ml_engine.configs.base import ExperimentConfig
+
 
 @dataclass
 class DatasetMetadata:
@@ -69,12 +70,14 @@ class DatasetLoggingCallback(pl.Callback):
 def build_callbacks(
     config: ExperimentConfig,
     extra_callbacks: list[pl.Callback] | None = None,
+    run_id: str | None = None,
 ) -> list[pl.Callback]:
     """Assembles the standard ml-engine callbacks plus any client-provided ones."""
     callbacks: list[pl.Callback] = [
         ModelCheckpoint(
-            dirpath=f"checkpoints/{config.project_name}",
-            filename="best_model-{epoch:02d}-{val/loss:.4f}",
+            dirpath=f"checkpoints/{config.experiment_name}",
+            auto_insert_metric_name=False,
+            filename="best_model-epoch={epoch:02d}-val_loss={val/loss:.4f}",
             monitor="val/loss",
             mode="min",
             save_top_k=1,

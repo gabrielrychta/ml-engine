@@ -1,8 +1,9 @@
-import torch
-from torch import nn, Tensor
 from abc import ABC, abstractmethod
 from typing import Any
+
 from jaxtyping import Shaped
+from torch import Tensor, nn
+
 
 class BaseTask(ABC):
     """

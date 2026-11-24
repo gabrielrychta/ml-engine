@@ -1,5 +1,7 @@
+from typing import Any, Literal
+
 from pydantic import BaseModel, Field
-from typing import Literal, Any
+
 
 class OptimizerConfig(BaseModel):
     name: str = Field(default="AdamW", description="Name of the torch.optim optimizer")
@@ -17,6 +19,7 @@ class DataConfig(BaseModel):
 
 class TrainerConfig(BaseModel):
     max_epochs: int = Field(default=100, gt=0)
+    log_every_n_steps: int = Field(default=10, gt=0)
     accelerator: Literal["cpu", "gpu", "auto"] = Field(default="auto")
     devices: int | Literal["auto"] = Field(default="auto")
     strategy: Literal["auto", "ddp"] = Field(default="auto")
@@ -25,7 +28,6 @@ class TrainerConfig(BaseModel):
 class ExperimentConfig(BaseModel):
     experiment_name: str = Field(..., description="Name of the experiment")
     seed: int = Field(default=67, description="Global seed")
-    
     trainer: TrainerConfig = Field(default_factory=TrainerConfig)
     optimizer: OptimizerConfig = Field(default_factory=OptimizerConfig)
     data: DataConfig = Field(default_factory=DataConfig)

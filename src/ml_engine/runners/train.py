@@ -52,6 +52,6 @@ def run_training(
     trainer.fit(model=engine, datamodule=datamodule)
 
     # 6. Execute Testing (optional, but useful for final evaluation)
-    trainer.test(model=engine, datamodule=datamodule)
+    trainer.test(model=engine, datamodule=datamodule, ckpt_path="best")
     
     return engine

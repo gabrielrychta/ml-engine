@@ -1,10 +1,12 @@
 from typing import Any
-import torch
-from torch import nn, Tensor
+
 import pytorch_lightning as pl
+import torch
+from torch import Tensor, nn
 
 from ml_engine.configs.base import ExperimentConfig
 from ml_engine.core.task import BaseTask
+
 
 class EngineModule(pl.LightningModule):
     """
