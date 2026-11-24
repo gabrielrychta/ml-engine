@@ -30,3 +30,7 @@ ignore = []
 dev = [
     "ruff>=0.17.5",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
